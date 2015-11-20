@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "CloudFormation template for a generic VPC with public and private subnets",
+  "Description" : "CloudFormation template for a generic VPC with public and private subnetsa",
 
   "Parameters" : {
 
