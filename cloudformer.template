@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "C loudFormation template for a generic VPC with public and private subnets (with private network Internet access via NAT)",
+  "Description" : "C loudFormation template for a generic VPC with public and private subnets",
 
   "Parameters" : {
 
