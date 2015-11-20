@@ -7,6 +7,7 @@ uptmp:
 	@git push
 	@echo "`date -u`"   >> .synclog
 	@echo "`aws s3 sync . s3://cf-tmpl-parascm5 --exclude ".git/*" --exclude ".*" --delete`" >> .synclog
+	@sed -i -e 's/^.*upload/upload/' .synclog
 
 dontdo:
 	ls -al
