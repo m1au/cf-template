@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "C loudFormation template for a generic VPC with public and private subnets",
+  "Description" : "CloudFormation template for a generic VPC with public and private subnets",
 
   "Parameters" : {
 
@@ -239,6 +239,31 @@
     },
 
     "NAT" : {
+      "DependsOn" : ["PublicSubnet", "NatSecurityGroup"],
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "InstanceType" : "t2.micro",
+        "KeyName"  : { "Ref" : "KeyPairName" },
+        "SourceDestCheck" : "false",
+        "ImageId" : { "Fn::FindInMap" : [ "NatRegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
+	"NetworkInterfaces" : [{
+          "GroupSet"                 : [{ "Ref" : "NatSecurityGroup" }],
+          "AssociatePublicIpAddress" : "true",
+          "DeviceIndex"              : "0",
+          "DeleteOnTermination"      : "true",
+          "SubnetId"                 : { "Ref" : "PublicSubnet" }
+        }],
+	"Tags" : [
+	  { "Key" : "Name", "Value" : "NAT" }
+        ],
+	"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+	  "#!/bin/bash\n",
+	  "yum update -y && yum install -y yum-cron && chkconfig yum-cron on"
+	]]}}
+      }
+    },
+    
+      "NAT2" : {
       "DependsOn" : ["PublicSubnet", "NatSecurityGroup"],
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
