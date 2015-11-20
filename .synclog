@@ -1,0 +1,4 @@
+delete: s3://cf-templates-parascm5/testme.template
+Completed 1 of 4 part(s) with 3 file(s) remainingdelete: s3://cf-templates-parascm5/testme2.template
+Completed 2 of 4 part(s) with 2 file(s) remainingupload: ./Makefile to s3://cf-templates-parascm5/Makefile
+Completed 3 of 4 part(s) with 1 file(s) remainingupload: ./cloudformer.template to s3://cf-templates-parascm5/cloudformer.template
