@@ -10,5 +10,3 @@ uptmp:
 
 dontdo:
 	ls -al
-
-
