@@ -363,7 +363,8 @@
       "Properties" : {
         "AvailabilityZone" : {"Fn::Join":["",[{ "Ref" : "Region" },"a"]]},
         "LoadBalancerName" : "WebLBA",
-        "Subnets" : "PublicSubnetA",
+        "SecurityGroups" : [ { "Ref" : "PublicLoadBalancerSecurityGroup" } ],
+        "Subnets" :  { "Ref" :"PublicSubnetA" },
         "Listeners": [
       		{ 
         		"LoadBalancerPort": "80",
