@@ -73,6 +73,19 @@
         ]
       }
     },
+    "PublicSubnetB" : {
+      "DependsOn" : ["VPC"],
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "PublicB", "CIDR" ]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Network", "Value" : "PublicB" },
+	  { "Key" : "Name", "Value" : "Public Subnet B" }
+        ]
+      }
+    },
 
     "InternetGateway" : {
       "Type" : "AWS::EC2::InternetGateway",
@@ -100,7 +113,7 @@
         "VpcId" : { "Ref" : "VPC" },
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
-          { "Key" : "Network", "Value" : "PublicA" }
+          { "Key" : "Network", "Value" : "Public A-B" }
         ]
       }
     },
@@ -115,7 +128,7 @@
       }
     },
 
-    "PublicSubnetRouteTableAssociation" : {
+    "PublicSubnetRouteTableAssociationA" : {
       "DependsOn" : ["PublicSubnetA", "PublicRouteTable"],
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
@@ -123,7 +136,15 @@
         "RouteTableId" : { "Ref" : "PublicRouteTable" }
       }
     },
-
+    "PublicSubnetRouteTableAssociationB" : {
+      "DependsOn" : ["PublicSubnetB", "PublicRouteTable"],
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PublicSubnetB" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
+    },
+    
     "PrivateSubnetA" : {
       "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::Subnet",
