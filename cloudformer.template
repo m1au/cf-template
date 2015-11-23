@@ -10,7 +10,14 @@
     "Type": "AWS::EC2::KeyPair::KeyName",
     "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
     },
-
+    
+  "Region": {
+    "Description": "Region where you want to start it",
+    "Type" : "String",
+    "Default" : "eu-central-1",
+    "AllowedValues" : ["eu-central-1", "eu-west-1", "us-east-1"]
+    },
+    
     "ServerAccess" : {
       "Description" : "CIDR IP range allowed to login to the NAT instance",
       "Type" : "String",
@@ -347,15 +354,6 @@
         "RouteTableId" : { "Ref" : "PrivateRouteTable" },
         "DestinationCidrBlock" : "0.0.0.0/0",
         "InstanceId" : { "Ref" : "NATa" }
-      }
-    },
-    "PrivateRouteB" : {
-      "DependsOn" : ["PrivateRouteTable", "NATb"],
-      "Type" : "AWS::EC2::Route",
-      "Properties" : {
-        "RouteTableId" : { "Ref" : "PrivateRouteTable" },
-        "DestinationCidrBlock" : "0.0.0.0/0",
-        "InstanceId" : { "Ref" : "NATb" }
       }
     }
     
