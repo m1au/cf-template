@@ -1,3 +1,6 @@
+validate:
+	-git diff --name-only | grep template > .synclocal
+	@while read line; do aws cloudformation validate-template --template-body file://$$line; done < .synclocal
 
 uptmp:
 	-git diff --name-only | grep template > .sync

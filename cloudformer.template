@@ -26,8 +26,12 @@
   "Mappings" : {
     "SubnetConfig" : {
       "VPC"     : { "CIDR" : "10.44.0.0/16" },
-      "Public"  : { "CIDR" : "10.44.0.0/24" },
-      "Private" : { "CIDR" : "10.44.1.0/24" }
+      "PublicA"  : { "CIDR" : "10.44.0.0/24" },
+      "PrivateA" : { "CIDR" : "10.44.1.0/24" },
+      "AZa"  : { "AZ" : "eu-central-1a" },
+      "PublicB"  : { "CIDR" : "10.44.2.0/24" },
+      "PrivateB" : { "CIDR" : "10.44.3.0/24" },
+      "AZb"  : { "AZ" : "eu-central-1b" }
     },
     "NatRegionMap" : {
       "us-east-1"      : { "AMI" : "ami-184dc970" },
@@ -56,16 +60,16 @@
       }
     },
 
-    "PublicSubnet" : {
+    "PublicSubnetA" : {
       "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "VPC" },
-        "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Public", "CIDR" ]},
+        "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "PublicA", "CIDR" ]},
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
-          { "Key" : "Network", "Value" : "Public" },
-	  { "Key" : "Name", "Value" : "Public Subnet" }
+          { "Key" : "Network", "Value" : "PublicA" },
+	  { "Key" : "Name", "Value" : "Public Subnet A" }
         ]
       }
     },
@@ -75,7 +79,7 @@
       "Properties" : {
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
-          { "Key" : "Network", "Value" : "Public" }
+          { "Key" : "Network", "Value" : "PublicA" }
         ]
       }
     },
@@ -96,7 +100,7 @@
         "VpcId" : { "Ref" : "VPC" },
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
-          { "Key" : "Network", "Value" : "Public" }
+          { "Key" : "Network", "Value" : "PublicA" }
         ]
       }
     },
@@ -112,24 +116,24 @@
     },
 
     "PublicSubnetRouteTableAssociation" : {
-      "DependsOn" : ["PublicSubnet", "PublicRouteTable"],
+      "DependsOn" : ["PublicSubnetA", "PublicRouteTable"],
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "PublicSubnet" },
+        "SubnetId" : { "Ref" : "PublicSubnetA" },
         "RouteTableId" : { "Ref" : "PublicRouteTable" }
       }
     },
 
-    "PrivateSubnet" : {
+    "PrivateSubnetA" : {
       "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::Subnet",
       "Properties" : {
         "VpcId" : { "Ref" : "VPC" },
-        "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Private", "CIDR" ]},
+        "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "PrivateA", "CIDR" ]},
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
-          { "Key" : "Network", "Value" : "Private" },
-	  { "Key" : "Name", "Value" : "Private Subnet" }
+          { "Key" : "Network", "Value" : "PrivateA" },
+	  { "Key" : "Name", "Value" : "Private Subnet A" }
         ]
       }
     },
@@ -141,16 +145,16 @@
         "VpcId" : { "Ref" : "VPC" },
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
-          { "Key" : "Network", "Value" : "Private" }
+          { "Key" : "Network", "Value" : "PrivateA" }
         ]
       }
     },
 
-    "PrivateSubnetRouteTableAssociation" : {
-      "DependsOn" : ["PrivateSubnet", "PrivateRouteTable"],
+    "PrivateSubnetRouteTableAssociationA" : {
+      "DependsOn" : ["PrivateSubnetA", "PrivateRouteTable"],
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
-        "SubnetId" : { "Ref" : "PrivateSubnet" },
+        "SubnetId" : { "Ref" : "PrivateSubnetA" },
         "RouteTableId" : { "Ref" : "PrivateRouteTable" }
       }
     },
@@ -239,7 +243,7 @@
     },
 
     "NATa" : {
-      "DependsOn" : ["PublicSubnet", "NatSecurityGroup"],
+      "DependsOn" : ["PublicSubnetA", "NatSecurityGroup"],
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
         "AvailabilityZone" : "eu-central-1a", 
@@ -252,7 +256,7 @@
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
           "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Ref" : "PublicSubnet" }
+          "SubnetId"                 : { "Ref" : "PublicSubnetA" }
         }],
 	"Tags" : [
 	  { "Key" : "Name", "Value" : "NATa" }
