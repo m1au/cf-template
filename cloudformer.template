@@ -361,10 +361,9 @@
     "WebLBA" : {
       "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
       "Properties" : {
-        "AvailabilityZone" : {"Fn::Join":["",[{ "Ref" : "Region" },"a"]]},
         "LoadBalancerName" : "WebLBA",
         "SecurityGroups" : [ { "Ref" : "PublicLoadBalancerSecurityGroup" } ],
-        "Subnets" :  { "Ref" :"PublicSubnetA" },
+        "Subnets" : [{ "Ref" : "PublicSubnetA" },{ "Ref" : "PublicSubnetB" }], 
         "Listeners": [
       		{ 
         		"LoadBalancerPort": "80",
@@ -380,7 +379,10 @@
       "Type" : "AWS::AutoScaling::LaunchConfiguration",
       "Properties" : {
         "ImageId" : { "Fn::FindInMap" : [ "WebAmi", { "Ref" : "AWS::Region" }, "AMI" ]},
-        "KeyName"  : { "Ref" : "KeyPairName" }
+        "InstanceType" : "t2.small",
+        "SecurityGroups" : [ { "Ref" : "PublicLoadBalancerSecurityGroup" } ],
+        "KeyName"  : { "Ref" : "KeyPairName" },
+        "InstanceMonitoring" : "false"
       }
     }, 
     
@@ -388,11 +390,15 @@
       "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "DependsOn" : ["PublicSubnetA", "NatSecurityGroup"],
       "Properties" : {
-        "AvailabilityZone" : {"Fn::Join":["",[{ "Ref" : "Region" },"a"]]},
+        "AvailabilityZones" : [{"Fn::Join":["",[{ "Ref" : "Region" },"a"]]}], 
+        "VPCZoneIdentifier" : [{ "Ref" : "PublicSubnetA" }], 
         "LaunchConfigurationName" : {"Ref" : "WebASLC"},
         "MinSize" : "1",
         "MaxSize" : "2",
-        "LoadBalancerNames" : [ { "Ref" : "WebLBA" } ]
+        "LoadBalancerNames" : [ { "Ref" : "WebLBA" } ],
+        "Tags" : [
+	  		{ "Key" : "Name", "Value" : "web", "PropagateAtLaunch" : "true" }
+        ]
       }
     },
     
