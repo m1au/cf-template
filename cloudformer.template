@@ -48,6 +48,9 @@
       "ap-southeast-1" : { "AMI" : "ami-6aa38238" },
       "ap-southeast-2" : { "AMI" : "ami-893f53b3" },
       "ap-northeast-1" : { "AMI" : "ami-27d6e626" }
+    },
+    "WebAmi" :{
+      "eu-central-1" : {"AMI" : "ami-bf9b89d3"}
     }
   },
 
@@ -352,6 +355,69 @@
         "RouteTableId" : { "Ref" : "PrivateRouteTable" },
         "DestinationCidrBlock" : "0.0.0.0/0",
         "InstanceId" : { "Ref" : "NATa" }
+      }
+    },
+    
+    "WebLBA" : {
+      "Type": "AWS::ElasticLoadBalancing::LoadBalancer",
+      "Properties" : {
+        "AvailabilityZone" : {"Fn::Join":["",[{ "Ref" : "Region" },"a"]]},
+        "LoadBalancerName" : "WebLBA",
+        "Subnets" : "PublicSubnetA",
+        "Listeners": [
+      		{ 
+        		"LoadBalancerPort": "80",
+        		"InstancePort": "80",
+        		"Protocol": "TCP",
+        		"InstanceProtocol" : "TCP"
+      		} 
+        ]
+      }
+    }, 
+    
+    "WebASLC" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Properties" : {
+        "ImageId" : { "Fn::FindInMap" : [ "WebAmi", { "Ref" : "AWS::Region" }, "AMI" ]},
+        "KeyName"  : { "Ref" : "KeyPairName" }
+      }
+    }, 
+    
+    "WebASA" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
+      "DependsOn" : ["PublicSubnetA", "NatSecurityGroup"],
+      "Properties" : {
+        "AvailabilityZone" : {"Fn::Join":["",[{ "Ref" : "Region" },"a"]]},
+        "LaunchConfigurationName" : {"Ref" : "WebASLC"},
+        "MinSize" : "1",
+        "MaxSize" : "2",
+        "LoadBalancerNames" : [ { "Ref" : "WebLBA" } ]
+      }
+    },
+    
+    "PublicLoadBalancerSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable HTTP/HTTPS access on port 80/443 to 80/8080",
+        "VpcId" :  { "Ref" : "VPC" },
+        "SecurityGroupIngress" : [ { 
+          "IpProtocol" : "tcp",
+          "FromPort" : "80",
+          "ToPort" : "80",
+          "CidrIp" : "0.0.0.0/0"
+        },
+        { 
+          "IpProtocol" : "tcp",
+          "FromPort" : "443",
+          "ToPort" : "443",
+          "CidrIp" : "0.0.0.0/0"
+        } ],
+        "SecurityGroupEgress" : [ { 
+          "IpProtocol" : "tcp",
+          "FromPort" : "80",
+          "ToPort" : "80",
+          "CidrIp" : "0.0.0.0/0"
+        } ]
       }
     }
     
