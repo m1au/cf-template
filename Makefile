@@ -22,3 +22,5 @@ updatetest:
 deltest:
 	@aws cloudformation delete-stack --stack-name TestStack
 
+checktest:
+	@aws cloudformation describe-stacks --stack-name TestStack | grep Status

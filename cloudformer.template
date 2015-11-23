@@ -27,12 +27,14 @@
     "SubnetConfig" : {
       "VPC"     : { "CIDR" : "10.44.0.0/16" },
       "PublicA"  : { "CIDR" : "10.44.0.0/24" },
-      "PrivateA" : { "CIDR" : "10.44.1.0/24" },
-      "AZa"  : { "AZ" : "eu-central-1a" },
-      "PublicB"  : { "CIDR" : "10.44.2.0/24" },
-      "PrivateB" : { "CIDR" : "10.44.3.0/24" },
-      "AZb"  : { "AZ" : "eu-central-1b" }
+      "PrivateA" : { "CIDR" : "10.44.2.0/24" },
+      "PublicB"  : { "CIDR" : "10.44.1.0/24" },
+      "PrivateB" : { "CIDR" : "10.44.3.0/24" }
     },
+    "AZ": {
+      "AZA" : {"AZ" : "eu-central-1a"},
+      "AZB" : {"AZ" : "eu-central-1b"}
+    }, 
     "NatRegionMap" : {
       "us-east-1"      : { "AMI" : "ami-184dc970" },
       "us-west-1"      : { "AMI" : "ami-a98396ec" },
@@ -66,6 +68,7 @@
       "Properties" : {
         "VpcId" : { "Ref" : "VPC" },
         "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "PublicA", "CIDR" ]},
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "AZ", "AZA", "AZ" ]}, 
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
           { "Key" : "Network", "Value" : "PublicA" },
@@ -79,6 +82,7 @@
       "Properties" : {
         "VpcId" : { "Ref" : "VPC" },
         "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "PublicB", "CIDR" ]},
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "AZ", "AZB", "AZ" ]},
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
           { "Key" : "Network", "Value" : "PublicB" },
@@ -267,7 +271,7 @@
       "DependsOn" : ["PublicSubnetA", "NatSecurityGroup"],
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
-        "AvailabilityZone" : "eu-central-1a", 
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "AZ", "AZA", "AZ" ]},
         "InstanceType" : "t2.micro",
         "KeyName"  : { "Ref" : "KeyPairName" },
         "SourceDestCheck" : "false",
