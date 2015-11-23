@@ -298,15 +298,6 @@
         "DestinationCidrBlock" : "0.0.0.0/0",
         "InstanceId" : { "Ref" : "NATa" }
       }
-    },
-    "PrivateRouteB" : {
-      "DependsOn" : ["PrivateRouteTable", "NATb"],
-      "Type" : "AWS::EC2::Route",
-      "Properties" : {
-        "RouteTableId" : { "Ref" : "PrivateRouteTable" },
-        "DestinationCidrBlock" : "0.0.0.0/0",
-        "InstanceId" : { "Ref" : "NATb" }
-      }
     }
 
   },
