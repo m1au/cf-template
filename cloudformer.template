@@ -162,7 +162,19 @@
         ]
       }
     },
-
+    "PrivateSubnetB" : {
+      "DependsOn" : ["VPC"],
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "PrivateB", "CIDR" ]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Network", "Value" : "PrivateB" },
+	  { "Key" : "Name", "Value" : "Private Subnet B" }
+        ]
+      }
+    },
     "PrivateRouteTable" : {
       "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::RouteTable",
@@ -170,7 +182,7 @@
         "VpcId" : { "Ref" : "VPC" },
         "Tags" : [
           { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
-          { "Key" : "Network", "Value" : "PrivateA" }
+          { "Key" : "Network", "Value" : "Private" }
         ]
       }
     },
@@ -183,7 +195,16 @@
         "RouteTableId" : { "Ref" : "PrivateRouteTable" }
       }
     },
-
+    
+    "PrivateSubnetRouteTableAssociationB" : {
+      "DependsOn" : ["PrivateSubnetB", "PrivateRouteTable"],
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PrivateSubnetB" },
+        "RouteTableId" : { "Ref" : "PrivateRouteTable" }
+      }
+    },
+    
     "NatSecurityGroup" : {
       "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::SecurityGroup",
@@ -292,7 +313,32 @@
 	]]}}
       }
     },
-
+    
+    "NATb" : {
+      "DependsOn" : ["PublicSubnetB", "NatSecurityGroup"],
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "AvailabilityZone" : { "Fn::FindInMap" : [ "AZ", "AZB", "AZ" ]},
+        "InstanceType" : "t2.micro",
+        "KeyName"  : { "Ref" : "KeyPairName" },
+        "SourceDestCheck" : "false",
+        "ImageId" : { "Fn::FindInMap" : [ "NatRegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
+	"NetworkInterfaces" : [{
+          "GroupSet"                 : [{ "Ref" : "NatSecurityGroup" }],
+          "AssociatePublicIpAddress" : "true",
+          "DeviceIndex"              : "0",
+          "DeleteOnTermination"      : "true",
+          "SubnetId"                 : { "Ref" : "PublicSubnetB" }
+        }],
+	"Tags" : [
+	  { "Key" : "Name", "Value" : "NATb" }
+        ],
+	"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+	  "#!/bin/bash\n",
+	  "yum update -y && yum install -y yum-cron && chkconfig yum-cron on"
+	]]}}
+      }
+    },
 
     "PrivateRouteA" : {
       "DependsOn" : ["PrivateRouteTable", "NATa"],
@@ -302,12 +348,22 @@
         "DestinationCidrBlock" : "0.0.0.0/0",
         "InstanceId" : { "Ref" : "NATa" }
       }
+    },
+    "PrivateRouteB" : {
+      "DependsOn" : ["PrivateRouteTable", "NATb"],
+      "Type" : "AWS::EC2::Route",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "PrivateRouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "NATb" }
+      }
     }
-
+    
   },
 
   "Outputs" : {
-    "NATIPA" : { "Description" : "NAT IP address", "Value" : { "Fn::GetAtt" : [ "NATa", "PublicIp" ] } }
+    "NATIPA" : { "Description" : "NAT IP address", "Value" : { "Fn::GetAtt" : [ "NATa", "PublicIp" ] } },
+    "NATIPB" : { "Description" : "NAT IP address", "Value" : { "Fn::GetAtt" : [ "NATb", "PublicIp" ] } }
   }
 
 }

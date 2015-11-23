@@ -13,7 +13,7 @@ uptmp:
 	@sed -i -e 's/^.*upload/upload/' .synclog
 
 
-buildtest:
+createtest:
 	@aws cloudformation create-stack --stack-name TestStack --template-body file://cloudformer.template --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
 
 updatetest:
