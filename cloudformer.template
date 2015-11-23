@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "CloudFormation test template creating 2 zones in 2 availabilty zones",
+  "Description" : "CloudFormation test template creating 2 zones in 2 availabilty zones with ELB and AS",
 
   "Parameters" : {
 
