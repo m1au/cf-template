@@ -224,11 +224,6 @@
             "FromPort" : "22",
             "ToPort" : "22",
             "CidrIp" : { "Ref" : "ServerAccess" }
-        },{
-            "IpProtocol" : "tcp",
-            "FromPort" : "3389",
-            "ToPort" : "3389",
-            "CidrIp" : { "Ref" : "ServerAccess" }
         }],
 	"Tags" : [
 	  { "Key" : "Name", "Value" : "NAT Security Group" }
@@ -418,7 +413,14 @@
           "FromPort" : "443",
           "ToPort" : "443",
           "CidrIp" : "0.0.0.0/0"
-        } ],
+        },
+        { 
+          "IpProtocol" : "tcp",
+          "FromPort" : "22",
+          "ToPort" : "22",
+          "SourceSecurityGroupId" : { "Ref": "NatSecurityGroup" }
+        }
+         ],
         "SecurityGroupEgress" : [ { 
           "IpProtocol" : "tcp",
           "FromPort" : "80",
