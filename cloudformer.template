@@ -238,10 +238,11 @@
       }
     },
 
-    "NAT" : {
+    "NATa" : {
       "DependsOn" : ["PublicSubnet", "NatSecurityGroup"],
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
+        "AvailabilityZone" : "eu-central-1a", 
         "InstanceType" : "t2.micro",
         "KeyName"  : { "Ref" : "KeyPairName" },
         "SourceDestCheck" : "false",
@@ -254,7 +255,7 @@
           "SubnetId"                 : { "Ref" : "PublicSubnet" }
         }],
 	"Tags" : [
-	  { "Key" : "Name", "Value" : "NAT" }
+	  { "Key" : "Name", "Value" : "NATa" }
         ],
 	"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 	  "#!/bin/bash\n",
@@ -263,10 +264,11 @@
       }
     },
     
-      "NAT2" : {
+      "NATb" : {
       "DependsOn" : ["PublicSubnet", "NatSecurityGroup"],
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
+        "AvailabilityZone" : "eu-central-1b", 
         "InstanceType" : "t2.micro",
         "KeyName"  : { "Ref" : "KeyPairName" },
         "SourceDestCheck" : "false",
@@ -279,7 +281,7 @@
           "SubnetId"                 : { "Ref" : "PublicSubnet" }
         }],
 	"Tags" : [
-	  { "Key" : "Name", "Value" : "NAT" }
+	  { "Key" : "Name", "Value" : "NATb" }
         ],
 	"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
 	  "#!/bin/bash\n",
@@ -288,23 +290,30 @@
       }
     },
 
-    "PrivateRoute" : {
-      "DependsOn" : ["PrivateRouteTable", "NAT"],
+    "PrivateRouteA" : {
+      "DependsOn" : ["PrivateRouteTable", "NATa"],
       "Type" : "AWS::EC2::Route",
       "Properties" : {
         "RouteTableId" : { "Ref" : "PrivateRouteTable" },
         "DestinationCidrBlock" : "0.0.0.0/0",
-        "InstanceId" : { "Ref" : "NAT" }
+        "InstanceId" : { "Ref" : "NATa" }
+      }
+    },
+    "PrivateRouteB" : {
+      "DependsOn" : ["PrivateRouteTable", "NATb"],
+      "Type" : "AWS::EC2::Route",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "PrivateRouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "NATb" }
       }
     }
 
   },
 
   "Outputs" : {
-    "NATIP" : {
-      "Description" : "NAT IP address",
-      "Value" : { "Fn::GetAtt" : [ "NAT", "PublicIp" ] }
-    }
+    "NATIPA" : { "Description" : "NAT IP address", "Value" : { "Fn::GetAtt" : [ "NATa", "PublicIp" ] } },
+    "NATIPB" : { "Description" : "NAT IP address", "Value" : { "Fn::GetAtt" : [ "NATb", "PublicIp" ] } }
   }
 
 }
