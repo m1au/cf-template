@@ -39,8 +39,8 @@
       "PrivateB" : { "CIDR" : "10.44.3.0/24" }
     },
     "AZ": {
-      "AZA" : {"AZ" : "eu-central-1a"},
-      "AZB" : {"AZ" : "eu-central-1b"}
+      "AZA" : {"AZ" : [{ "Ref" : "Region" },"a"]},
+      "AZB" : {"AZ" : [{ "Ref" : "Region" },"b"]}
     }, 
     "NatRegionMap" : {
       "us-east-1"      : { "AMI" : "ami-184dc970" },
