@@ -263,32 +263,7 @@
 	]]}}
       }
     },
-    
-      "NATb" : {
-      "DependsOn" : ["PublicSubnet", "NatSecurityGroup"],
-      "Type" : "AWS::EC2::Instance",
-      "Properties" : {
-        "AvailabilityZone" : "eu-central-1b", 
-        "InstanceType" : "t2.micro",
-        "KeyName"  : { "Ref" : "KeyPairName" },
-        "SourceDestCheck" : "false",
-        "ImageId" : { "Fn::FindInMap" : [ "NatRegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
-	"NetworkInterfaces" : [{
-          "GroupSet"                 : [{ "Ref" : "NatSecurityGroup" }],
-          "AssociatePublicIpAddress" : "true",
-          "DeviceIndex"              : "0",
-          "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Ref" : "PublicSubnet" }
-        }],
-	"Tags" : [
-	  { "Key" : "Name", "Value" : "NATb" }
-        ],
-	"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
-	  "#!/bin/bash\n",
-	  "yum update -y && yum install -y yum-cron && chkconfig yum-cron on"
-	]]}}
-      }
-    },
+
 
     "PrivateRouteA" : {
       "DependsOn" : ["PrivateRouteTable", "NATa"],
@@ -303,8 +278,7 @@
   },
 
   "Outputs" : {
-    "NATIPA" : { "Description" : "NAT IP address", "Value" : { "Fn::GetAtt" : [ "NATa", "PublicIp" ] } },
-    "NATIPB" : { "Description" : "NAT IP address", "Value" : { "Fn::GetAtt" : [ "NATb", "PublicIp" ] } }
+    "NATIPA" : { "Description" : "NAT IP address", "Value" : { "Fn::GetAtt" : [ "NATa", "PublicIp" ] } }
   }
 
 }
