@@ -9,7 +9,12 @@ uptmp:
 	@echo "`aws s3 sync . s3://cf-tmpl-parascm5 --exclude ".git/*" --exclude ".*" --delete`" >> .synclog
 	@sed -i -e 's/^.*upload/upload/' .synclog
 
-dontdo:
-	ls -al
+buildtest:
+	@aws cloudformation create-stack --stack-name TestStack --template-body file://cloudformer.template --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
 
+updatetest:
+	@aws cloudformation update-stack --stack-name TestStack --template-body file://cloudformer.template --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
+
+deltest:
+	@aws cloudformation delete-stack --stack-name TestStack
 
