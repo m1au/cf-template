@@ -244,7 +244,10 @@
   },
 
   "Outputs" : {
-	"VPCID" : { "Value" : { "Ref" : "VPC" }
-    }
+	"VPCID" : { "Value" : { "Ref" : "VPC" }, "Description" : "VPC ID"},
+	"PublicSubnetID" : { "Value" : { "Ref" : "PublicSubnet" }, "Description" : "Public Subnet ID"},
+ 	"AdminSubnetID" : { "Value" : { "Ref" : "AdminSubnet" }, "Description" : "Admin SN ID"},
+	"SlavesSubnetID" : { "Value" : { "Ref" : "SlaveSubnet" }, "Description" : "Slave SN ID"},
+	"NATDeviceID" : { "Value" : { "Ref" : "NATa" }, "Description" : "Nat Instance ID"}
   }
 }
