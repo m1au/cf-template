@@ -1,0 +1,51 @@
+{
+  "AWSTemplateFormatVersion" : "2015-11-24",
+
+  "Description" : "Cloudformation template deploying full CI environment with Jenkins and Gitlab in VPC with 2 networks. Public for JM and GL and private for JS",
+
+  "Parameters" : {
+   "KeyPairName": {
+    "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+    "Type": "AWS::EC2::KeyPair::KeyName",
+    "ConstraintDescription": "must be the name of an existing EC2 KeyPair."
+    },
+    
+  "Region": {
+    "Description": "Region where you want to start it",
+    "Type" : "String",
+    "Default" : "eu-central-1",
+    "AllowedValues" : ["eu-central-1", "eu-west-1", "us-east-1"]
+    },
+    
+    "ServerAccess" : {
+      "Description" : "CIDR IP range allowed to login to the Admin instance",
+      "Type" : "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default" : "0.0.0.0/0",
+      "AllowedPattern" : "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription" : "must be a valid CIDR range of the form x.x.x.x/x."
+    }
+  },
+
+  "Mappings" : {
+     "SubnetConfig" : {
+      "VPC"    : { "CIDR" : "10.16.0.0/16" },
+      "Admin"  : { "CIDR" : "10.16.0.0/24" },
+      "Public" : { "CIDR" : "10.16.1.0/24" },
+      "Privat" : { "CIDR" : "10.16.2.0/24" }
+    }
+  },
+
+  "Conditions" : {
+    
+  },
+
+  "Resources" : {
+    
+  },
+
+  "Outputs" : {
+    
+  }
+}
