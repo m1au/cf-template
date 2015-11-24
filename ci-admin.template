@@ -73,7 +73,14 @@
   },
 
   "Resources" : {
-
+	"ChildStack01": {
+           "Type": "AWS::CloudFormation::Stack",
+           "Properties": {
+               "TemplateURL": "https://s3.eu-central-1.amazonaws.com/cf-tmpl-parascm5/ci-network.template",
+               "TimeoutInMinutes": "60"
+           }
+       },
+       
     "CfnUser": {
       "Type": "AWS::IAM::User",
       "Properties": {
