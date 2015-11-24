@@ -152,6 +152,7 @@
         "RouteTableId" : { "Ref" : "PublicRouteTable" }
       }
     },
+    
      "SlaveSubnet" : {
       "DependsOn" : ["VPC"],
       "Type" : "AWS::EC2::Subnet",
@@ -165,8 +166,29 @@
 	  { "Key" : "Name", "Value" : "Slaves Subnet" }
         ]
       }
+    },
+
+    "SlaveRouteTable" : {
+      "DependsOn" : ["VPC"],
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Network", "Value" : "Private" }
+        ]
+      }
+    },
+
+    "SlaveSubnetRouteTableAssociationA" : {
+      "DependsOn" : ["SlaveSubnet", "SlaveRouteTable"],
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "SlaveSubnet" },
+        "RouteTableId" : { "Ref" : "SlaveRouteTable" }
+      }
     }
-    
+        
   },
 
   "Outputs" : {
