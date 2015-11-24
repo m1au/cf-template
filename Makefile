@@ -24,3 +24,6 @@ deltest:
 
 checktest:
 	@aws cloudformation describe-stacks --stack-name TestStack | grep Status
+
+checkevents:
+	@watch -n2 "aws cloudformation describe-stack-events --stack-name TestStack | head"
