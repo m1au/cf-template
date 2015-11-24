@@ -95,21 +95,6 @@
         ]
       }
     },   
-  
-    "SlavesSubnet" : {
-      "DependsOn" : ["VPC"],
-      "Type" : "AWS::EC2::Subnet",
-      "Properties" : {
-        "VpcId" : { "Ref" : "VPC" },
-        "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Slaves", "CIDR" ]},
-        "AvailabilityZone" : {"Fn::Join":["",[{ "Ref" : "Region" },"a"]]}, 
-        "Tags" : [
-          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
-          { "Key" : "Network", "Value" : "SlaveSubnet" },
-	  { "Key" : "Name", "Value" : "SlaveSubnet" }
-        ]
-      }
-    },
     
     "InternetGateway" : {
       "Type" : "AWS::EC2::InternetGateway",
@@ -166,8 +151,21 @@
         "SubnetId" : { "Ref" : "PublicSubnet" },
         "RouteTableId" : { "Ref" : "PublicRouteTable" }
       }
+    },
+     "SlaveSubnet" : {
+      "DependsOn" : ["VPC"],
+      "Type" : "AWS::EC2::Subnet",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "AvailabilityZone" : {"Fn::Join":["",[{ "Ref" : "Region" },"a"]]},
+        "CidrBlock" : { "Fn::FindInMap" : [ "SubnetConfig", "Slaves", "CIDR" ]},
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Network", "Value" : "SlavesSubnet" },
+	  { "Key" : "Name", "Value" : "Slaves Subnet" }
+        ]
+      }
     }
- 
     
   },
 
