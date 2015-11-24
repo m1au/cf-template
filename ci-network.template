@@ -223,7 +223,22 @@
       }
     },
     "NatSecurityGroup" : {
-      "Type" : "AWS::EC2::SecurityGroup"
+      "Type" : "AWS::EC2::SecurityGroup",
+		"Properties" : {
+        "GroupDescription" : "Enable internal access to NAT instance: receive internet-bound traffic from instances in private subnet, as well as SSH traffic from vpc",
+        "VpcId" : { "Ref" : "VPC" },
+        "SecurityGroupIngress" : [
+          { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Fn::FindInMap" : [ "SubnetConfig", "Admin", "CIDR" ]}},
+          { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : "192.168.10.0/24" },
+          { "IpProtocol" : "tcp", "FromPort" : "443",  "ToPort" : "443",  "CidrIp" : "192.168.10.0/24" },
+          { "IpProtocol" : "icmp", "FromPort" : "-1",  "ToPort" : "-1",  "CidrIp" : "192.168.10.0/24" }
+        ],
+        "SecurityGroupEgress" : [
+          { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : "0.0.0.0/0" },
+          { "IpProtocol" : "tcp", "FromPort" : "443", "ToPort" : "443", "CidrIp" : "0.0.0.0/0" },
+          { "IpProtocol" : "icmp", "FromPort" : "-1",  "ToPort" : "-1",  "CidrIp" : "0.0.0.0/0" }
+        ]
+      }
       }
         
   },
