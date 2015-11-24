@@ -109,11 +109,70 @@
 	  { "Key" : "Name", "Value" : "SlaveSubnet" }
         ]
       }
+    },
+    
+    "InternetGateway" : {
+      "Type" : "AWS::EC2::InternetGateway",
+      "Properties" : {
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Network", "Value" : "Gateway" }
+        ]
+      }
+    },
+
+    "GatewayToInternet" : {
+       "DependsOn" : ["VPC", "InternetGateway"],
+       "Type" : "AWS::EC2::VPCGatewayAttachment",
+       "Properties" : {
+         "VpcId" : { "Ref" : "VPC" },
+         "InternetGatewayId" : { "Ref" : "InternetGateway" }
+       }
+    },
+    "PublicRouteTable" : {
+      "DependsOn" : ["VPC"],
+      "Type" : "AWS::EC2::RouteTable",
+      "Properties" : {
+        "VpcId" : { "Ref" : "VPC" },
+        "Tags" : [
+          { "Key" : "Application", "Value" : { "Ref" : "AWS::StackName" } },
+          { "Key" : "Network", "Value" : "Public A-B" }
+        ]
+      }
+    },
+
+    "PublicRoute" : {
+      "DependsOn" : ["PublicRouteTable", "InternetGateway"],
+      "Type" : "AWS::EC2::Route",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "PublicRouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "GatewayId" : { "Ref" : "InternetGateway" }
+      }
+    },
+
+    "PublicSubnetRouteTableAssociationA" : {
+      "DependsOn" : ["AdminSubnet", "PublicRouteTable"],
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "AdminSubnet" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
+    },
+    "PublicSubnetRouteTableAssociationB" : {
+      "DependsOn" : ["PublicSubnet", "PublicRouteTable"],
+      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties" : {
+        "SubnetId" : { "Ref" : "PublicSubnet" },
+        "RouteTableId" : { "Ref" : "PublicRouteTable" }
+      }
     }
+ 
     
   },
 
   "Outputs" : {
-    
+	"VPCID" : { "Value" : { "Ref" : "VPC" }
+    }
   }
 }
