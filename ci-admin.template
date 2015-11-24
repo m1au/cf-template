@@ -21,15 +21,17 @@
       "Type" : "String",
       "MinLength": "1",
       "MaxLength": "64",
+      "Default": "parascm5-key",
       "AllowedPattern" : "[-_ a-zA-Z0-9]*",
       "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
-    },
+    }, 
 
     "BastionKeyName" : {
       "Description" : "Name of the EC2 KeyPair we will create internally to access instances in our VPC",
       "Type" : "String",
       "MinLength": "1",
       "MaxLength": "64",
+      "Default": "bastion",
       "AllowedPattern" : "[-_ a-zA-Z0-9]*",
       "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
     },
@@ -71,6 +73,7 @@
   },
 
   "Resources" : {
+
     "CfnUser": {
       "Type": "AWS::IAM::User",
       "Properties": {
