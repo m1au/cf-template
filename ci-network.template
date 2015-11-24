@@ -180,14 +180,51 @@
       }
     },
 
-    "SlaveSubnetRouteTableAssociationA" : {
+    "SlaveSubnetRouteTableAssociation" : {
       "DependsOn" : ["SlaveSubnet", "SlaveRouteTable"],
       "Type" : "AWS::EC2::SubnetRouteTableAssociation",
       "Properties" : {
         "SubnetId" : { "Ref" : "SlaveSubnet" },
         "RouteTableId" : { "Ref" : "SlaveRouteTable" }
       }
-    }
+    },
+     "PrivateRoute" : {
+      "Type" : "AWS::EC2::Route",
+      "Properties" : {
+        "RouteTableId" : { "Ref" : "SlaveRouteTable" },
+        "DestinationCidrBlock" : "0.0.0.0/0",
+        "InstanceId" : { "Ref" : "NATa" }
+      }
+    },
+
+    "NATa" : {
+      "DependsOn" : ["PublicSubnet", "NatSecurityGroup"],
+      "Type" : "AWS::EC2::Instance",
+      "Properties" : {
+        "AvailabilityZone" : {"Fn::Join":["",[{ "Ref" : "Region" },"a"]]},
+        "InstanceType" : "t2.micro",
+        "KeyName"  : { "Ref" : "KeyPairName" },
+        "SourceDestCheck" : "false",
+        "ImageId" : { "Fn::FindInMap" : [ "NatRegionMap", { "Ref" : "AWS::Region" }, "AMI" ]},
+		"NetworkInterfaces" : [{
+          "GroupSet"                 : [{ "Ref" : "NatSecurityGroup" }],
+          "AssociatePublicIpAddress" : "true",
+          "DeviceIndex"              : "0",
+          "DeleteOnTermination"      : "true",
+          "SubnetId"                 : { "Ref" : "PublicSubnet" }
+        }],
+		"Tags" : [
+	 		{ "Key" : "Name", "Value" : "NATa" }
+        ],
+		"UserData" : { "Fn::Base64" : { "Fn::Join" : ["", [
+	  		"#!/bin/bash\n",
+			"yum update -y && yum install -y yum-cron && chkconfig yum-cron on"
+		]]}}
+      }
+    },
+    "NatSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup"
+      }
         
   },
 
