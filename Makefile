@@ -15,16 +15,16 @@ uptmp:
 
 
 createtest:
-	aws cloudformation create-stack --stack-name TestStack --template-body file://cloudformer.template --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
+	aws cloudformation create-stack --stack-name $n --template-body file://$t --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
 
 updatetest:
-	@aws cloudformation update-stack --stack-name TestStack --template-body file://cloudformer.template --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
+	@aws cloudformation update-stack --stack-name $n --template-body file://$t --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
 
 deltest:
-	@aws cloudformation delete-stack --stack-name TestStack
+	@aws cloudformation delete-stack --stack-name $n
 
 checktest:
-	@aws cloudformation describe-stacks --stack-name TestStack | grep Status
+	@aws cloudformation describe-stacks --stack-name $n | grep Status
 
 checkevents:
-	@watch -n2 "aws cloudformation describe-stack-events --stack-name TestStack | head"
+	@watch -n2 "aws cloudformation describe-stack-events --stack-name $n | head"
