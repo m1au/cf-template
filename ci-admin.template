@@ -4,27 +4,6 @@
   "Description" : "Add a Bastion host to an existing VPC. VPC must have an internet gateway already.",
 
   "Parameters" : {
-    "VpcId" : {
-      "Type" : "String",
-      "Default" : "vpc-",
-      "Description" : "Vpc ID of your existing Virtual Private Cloud (VPC)"
-    },
-
-    "SubnetId" : {
-      "Type" : "String",
-      "Default" : "subnet-",
-      "Description" : "Subnet ID of an existing public facing subnet in your Virtual Private Cloud (VPC)"
-    },
-
-    "KeyName" : {
-      "Description" : "Name of an existing EC2 KeyPair to enable SSH access to the instance",
-      "Type" : "String",
-      "MinLength": "1",
-      "MaxLength": "64",
-      "Default": "parascm5-key",
-      "AllowedPattern" : "[-_ a-zA-Z0-9]*",
-      "ConstraintDescription" : "can contain only alphanumeric characters, spaces, dashes and underscores."
-    }, 
 
     "BastionKeyName" : {
       "Description" : "Name of the EC2 KeyPair we will create internally to access instances in our VPC",
@@ -122,7 +101,7 @@
     "BastionSecurityGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
-        "VpcId" : { "Ref" : "VpcId" },
+        "VpcId" : { "Fn::GetAtt" : [ "ChildStack01", "Outputs.VPCID" ] },
         "GroupDescription" : "Enable SSH access via port 22",
         "SecurityGroupIngress" : [
           { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Ref" : "SSHFrom" }}
@@ -191,9 +170,9 @@
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
           "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Ref" : "SubnetId" }
+          "SubnetId"                 : { "Fn::GetAtt" : [ "ChildStack01", "Outputs.AdminSubnetID" ] }
         }],
-        "KeyName" : { "Ref" : "KeyName" },
+        "KeyName" : { "Fn::GetAtt" : [ "ChildStack01", "Outputs.Key" ] },
         "Tags": [
            { "Key" : "Name", "Value" : { "Ref" : "ResourceName" } }
         ],

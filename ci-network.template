@@ -248,6 +248,7 @@
 	"PublicSubnetID" : { "Value" : { "Ref" : "PublicSubnet" }, "Description" : "Public Subnet ID"},
  	"AdminSubnetID" : { "Value" : { "Ref" : "AdminSubnet" }, "Description" : "Admin SN ID"},
 	"SlavesSubnetID" : { "Value" : { "Ref" : "SlaveSubnet" }, "Description" : "Slave SN ID"},
+	"Key" : { "Value" : { "Ref" : "KeyPairName" }, "Description" : "Keyused"},
 	"NATDeviceID" : { "Value" : { "Ref" : "NATa" }, "Description" : "Nat Instance ID"}
   }
 }
