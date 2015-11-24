@@ -15,7 +15,7 @@ uptmp:
 
 
 createtest:
-	aws cloudformation create-stack --stack-name $n --template-body file://$t --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
+	aws cloudformation create-stack --stack-name $n --template-body file://$t --region eu-central-1
 
 updatetest:
 	@aws cloudformation update-stack --stack-name $n --template-body file://$t --parameters ParameterKey=KeyPairName,ParameterValue=parascm5-key --region eu-central-1
