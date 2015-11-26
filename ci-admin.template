@@ -52,7 +52,7 @@
   },
 
   "Resources" : {
-	"ChildStack01": {
+	"VPCStack": {
            "Type": "AWS::CloudFormation::Stack",
            "Properties": {
                "TemplateURL": "https://s3.eu-central-1.amazonaws.com/cf-tmpl-parascm5/ci-network.template",
@@ -101,7 +101,7 @@
     "BastionSecurityGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
-        "VpcId" : { "Fn::GetAtt" : [ "ChildStack01", "Outputs.VPCID" ] },
+        "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
         "GroupDescription" : "Enable SSH access via port 22",
         "SecurityGroupIngress" : [
           { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Ref" : "SSHFrom" }}
@@ -170,9 +170,9 @@
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
           "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Fn::GetAtt" : [ "ChildStack01", "Outputs.AdminSubnetID" ] }
+          "SubnetId"                 : { "Fn::GetAtt" : [ "VPCStack", "Outputs.AdminSubnetID" ] }
         }],
-        "KeyName" : { "Fn::GetAtt" : [ "ChildStack01", "Outputs.Key" ] },
+        "KeyName" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] },
         "Tags": [
            { "Key" : "Name", "Value" : { "Ref" : "ResourceName" } }
         ],
@@ -180,34 +180,7 @@
           "Fn::Base64" : { "Fn::Join" : ["", [
                 "#!/bin/bash -v\n",
                 "yum update -y aws-cfn-bootstrap\n",
-                "yum install -y python-boto\n",
-
-                "#do some chef things before the cfn-init due to race issues\n",
-                "/bin/mkdir -p /etc/chef\n",
-                "/bin/mkdir -p /var/lib/chef\n",
-                "/bin/mkdir -p /var/log/chef\n",
-                "/usr/sbin/groupadd chef -r\n",
-                "/usr/sbin/useradd chef -r -s /bin/sh -d /var/lib/chef -g chef\n",
-
-                "# Helper function\n",
-                "function error_exit\n",
-                "{\n",
-                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '", { "Ref" : "BastionHostHandle" }, "'\n",
-                "  exit 1\n",
-                "}\n",
-
-                "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" }, " -r BastionHost ",
-                "    --access-key ",  { "Ref" : "CfnKeys" },
-                "    --secret-key ", {"Fn::GetAtt": ["CfnKeys", "SecretAccessKey"]},
-                "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n",
-
-                "#install chef client for later\n",
-                "curl -L http://www.opscode.com/chef/install.sh | bash\n",
-                "cd /etc/chef\n",
-                "/bin/chown -R chef:chef /etc/chef\n",
-
-                "# All is well so signal success\n",
-                "/opt/aws/bin/cfn-signal -e 0 -r \"Bastion host setup complete\" '", { "Ref" : "BastionHostHandle" }, "'\n"
+                "yum install -y python-boto\n"
               ]
             ]
           }
@@ -229,19 +202,8 @@
 
   "Outputs" : {
 
-    "InstanceID" : {
-      "Value" : {"Ref": "BastionHost"},
-      "Description" : "Bastion Instance ID"
-    },
-
-    "PublicIp" : {
-      "Value" : {"Fn::GetAtt" : [ "BastionHost", "PublicIp" ]},
-      "Description" : "Public IP address of instance"
-    },
-
-    "BastionKeyName" : {
-      "Value" : { "Ref" : "BastionKeyName" },
-      "Description" : "Internal bastion KeyPair name"
-    }
+    "InstanceID" : {      "Value" : {"Ref": "BastionHost"},      "Description" : "Bastion Instance ID"     },
+    "PublicIp" : {      "Value" : {"Fn::GetAtt" : [ "BastionHost", "PublicIp" ]},      "Description" : "Public IP address of instance"     },
+    "BastionKeyName" : {      "Value" : { "Ref" : "BastionKeyName" },       "Description" : "Internal bastion KeyPair name"    }
   }
 }
