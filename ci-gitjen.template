@@ -45,8 +45,7 @@
         "SecurityGroupIngress" : [
           { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : { "Ref" : "WebAccess" }},
           { "IpProtocol" : "tcp", "FromPort" : "8080",  "ToPort" : "8080",  "CidrIp" : { "Ref" : "WebAccess" }},
-          { "IpProtocol" : "tcp", "FromPort" : "443",  "ToPort" : "443",  "CidrIp" : { "Ref" : "WebAccess" }},
-          { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.AdminSubnetID" ] }}
+          { "IpProtocol" : "tcp", "FromPort" : "443",  "ToPort" : "443",  "CidrIp" : { "Ref" : "WebAccess" }}
         ]
       }
     },
@@ -62,7 +61,7 @@
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
           "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnet" ] }
+          "SubnetId"                 : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnetID" ] }
         }],
         "KeyName" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] },
         "Tags": [
@@ -91,7 +90,7 @@
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
           "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnet" ] }
+          "SubnetId"                 : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnetID" ] }
         }],
         "KeyName" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] },
         "Tags": [
