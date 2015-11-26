@@ -1,0 +1,107 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "Deploy Jenkins and Gitlab",
+
+  "Parameters" : {
+    
+    "WebAccess" : {
+      "Description": "Lockdown webaccess to Gitlab and Jenkins from particual IP",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid CIDR range of the form x.x.x.x/x."
+    }
+  },
+
+  "Mappings" : {
+  },
+
+  "Conditions" : {
+  },
+
+  "Resources" : {
+	"VPCStack": {
+           "Type": "AWS::CloudFormation::Stack",
+           "Properties": {
+               "TemplateURL": "https://s3.eu-central-1.amazonaws.com/cf-tmpl-parascm5/ci-network.template",
+               "TimeoutInMinutes": "60"
+           }
+       },
+    "CISecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
+        "GroupDescription" : "Enable SSH access via port 22",
+        "SecurityGroupIngress" : [
+          { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : { "Ref" : "WebAccess" }},
+          { "IpProtocol" : "tcp", "FromPort" : "8080",  "ToPort" : "8080",  "CidrIp" : { "Ref" : "WebAccess" }},
+          { "IpProtocol" : "tcp", "FromPort" : "443",  "ToPort" : "443",  "CidrIp" : { "Ref" : "WebAccess" }}
+        ]
+      }
+    },
+    "JenkinsHost" : {
+      "Type" : "AWS::EC2::Instance",
+      "Metadata": {
+      },
+      "Properties" : {
+        "InstanceType" : "t2.micro",
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" }, "64HVM" ]},
+        "NetworkInterfaces" : [{
+          "GroupSet"                 : [{ "Ref" : "JenkinsSecurityGroup" }],
+          "AssociatePublicIpAddress" : "true",
+          "DeviceIndex"              : "0",
+          "DeleteOnTermination"      : "true",
+          "SubnetId"                 : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnet" ] }
+        }],
+        "KeyName" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] },
+        "Tags": [
+           { "Key" : "Name", "Value" : { "Ref" : "ResourceName" } }
+        ],
+        "UserData": {
+          "Fn::Base64" : { "Fn::Join" : ["", [
+                "#!/bin/bash -v\n",
+                "yum update -y aws-cfn-bootstrap\n",
+                "yum install -y python-boto\n"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "GitlabHost" : {
+      "Type" : "AWS::EC2::Instance",
+      "Metadata": {
+      },
+      "Properties" : {
+        "InstanceType" : "t2.micro",
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" }, "64HVM" ]},
+        "NetworkInterfaces" : [{
+          "GroupSet"                 : [{ "Ref" : "GitlabSecurityGroup" }],
+          "AssociatePublicIpAddress" : "true",
+          "DeviceIndex"              : "0",
+          "DeleteOnTermination"      : "true",
+          "SubnetId"                 : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnet" ] }
+        }],
+        "KeyName" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] },
+        "Tags": [
+           { "Key" : "Name", "Value" : { "Ref" : "ResourceName" } }
+        ],
+        "UserData": {
+          "Fn::Base64" : { "Fn::Join" : ["", [
+                "#!/bin/bash -v\n",
+                "yum update -y aws-cfn-bootstrap\n",
+                "yum install -y python-boto\n"
+              ]
+            ]
+          }
+        }
+      }
+    }
+  },
+
+  "Outputs" : {
+  }
+}
