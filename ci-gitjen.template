@@ -45,7 +45,8 @@
         "SecurityGroupIngress" : [
           { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : { "Ref" : "WebAccess" }},
           { "IpProtocol" : "tcp", "FromPort" : "8080",  "ToPort" : "8080",  "CidrIp" : { "Ref" : "WebAccess" }},
-          { "IpProtocol" : "tcp", "FromPort" : "443",  "ToPort" : "443",  "CidrIp" : { "Ref" : "WebAccess" }}
+          { "IpProtocol" : "tcp", "FromPort" : "443",  "ToPort" : "443",  "CidrIp" : { "Ref" : "WebAccess" }},
+          { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.AdminSubnetID" ] }}
         ]
       }
     },
@@ -57,7 +58,7 @@
         "InstanceType" : "t2.micro",
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" }, "64HVM" ]},
         "NetworkInterfaces" : [{
-          "GroupSet"                 : [{ "Ref" : "JenkinsSecurityGroup" }],
+          "GroupSet"                 : [{ "Ref" : "JenkinsSecurityGroup" },{ "Ref" : "CISecurityGroup" }],
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
           "DeleteOnTermination"      : "true",
@@ -86,7 +87,7 @@
         "InstanceType" : "t2.micro",
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" }, "64HVM" ]},
         "NetworkInterfaces" : [{
-          "GroupSet"                 : [{ "Ref" : "GitlabSecurityGroup" }],
+          "GroupSet"                 : [{ "Ref" : "GitlabSecurityGroup" },{ "Ref" : "CISecurityGroup" }],
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
           "DeleteOnTermination"      : "true",
@@ -113,7 +114,7 @@
         "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
         "GroupDescription" : "Enable SSH access via port 22",
         "SecurityGroupIngress" : [
-          { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.AdminSubnetID" ] }}
+          
         ]
       }
     },
@@ -123,7 +124,7 @@
         "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
         "GroupDescription" : "Enable SSH access via port 22",
         "SecurityGroupIngress" : [
-          { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.AdminSubnetID" ] }}
+          
         ]
       }
     }
