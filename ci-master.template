@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "JSON string",
+  "Description" : "CI master template",
 
   "Parameters" : {
 
@@ -21,6 +21,18 @@
            "Properties": {
                "TemplateURL": "https://s3.eu-central-1.amazonaws.com/cf-tmpl-parascm5/ci-network.template",
                "TimeoutInMinutes": "60"
+           }
+       },
+	"GitJen": {
+           "Type": "AWS::CloudFormation::Stack",
+           "Properties": {
+               "TemplateURL": "https://s3.eu-central-1.amazonaws.com/cf-tmpl-parascm5/ci-gitjen.template",
+               "TimeoutInMinutes": "60",
+               "Parameters": {
+                  "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
+                  "PublicSubnetID" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnetID" ] },
+                  "Key" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] }
+               }
            }
        }
   },
