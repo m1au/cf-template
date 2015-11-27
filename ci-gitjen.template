@@ -38,11 +38,11 @@
 
   "Mappings" : {
     "AWSRegionArch2AMI" : {
-      "us-east-1"      : { "64HVM" : "ami-1ecae776" },
-      "us-west-1"      : { "64HVM" : "ami-d114f295" },
-      "us-west-2"      : { "64HVM" : "ami-e7527ed7" },
-      "eu-central-1"   : { "64HVM" : "ami-a8221fb5" },
-      "eu-west-1"      : { "64HVM" : "ami-a10897d6" }
+      "us-east-1"      : { "64HVM" : "ami-b25d44b3" },
+      "us-west-1"      : { "64HVM" : "ami-aeb49ffc" },
+      "us-west-2"      : { "64HVM" : "ami-6b770351" },
+      "eu-central-1"   : { "64HVM" : "ami-98043785" },
+      "eu-west-1"      : { "64HVM" : "ami-61e56916" }
     }
   },
 
