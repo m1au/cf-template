@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "Add a Bastion host to an existing VPC. VPC must have an internet gateway already.",
+  "Description" : "EC2 - Bastion host",
 
   "Parameters" : {
     "VpcId" : {
@@ -91,7 +91,37 @@
                 "Effect": "Allow",
                 "Action": "cloudformation:DescribeStackResource",
                 "Resource": "*"
-              }]
+              },
+              {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketLocation",
+                "s3:ListBucketMultipartUploads"
+            ],
+            "Resource": "arn:aws:s3:::cf-tmpl-parascm5",
+            "Condition": {}
+	        },
+	        {
+	            "Effect": "Allow",
+	            "Action": [
+
+	                "s3:GetObject",
+	                "s3:GetObjectAcl",
+	                "s3:GetObjectVersion",
+	                "s3:GetObjectVersionAcl"
+
+	            ],
+	            "Resource": "arn:aws:s3:::cf-tmpl-parascm5/*",
+	            "Condition": {}
+	        },
+	        {
+	            "Effect": "Allow",
+	            "Action": "s3:ListAllMyBuckets",
+	            "Resource": "*",
+	            "Condition": {}
+	        }
+              ]
             }
           }
         ]
@@ -161,14 +191,6 @@
                 "mode": "000600",
                 "owner": "ec2-user",
                 "group": "ec2-user"
-              },
-              "/etc/chef/client-attribs.json" : {
-                "content" : { "Fn::Join" : ["", [
-                  "{\"run_list\": [ \"role[<put role here>]\" ]}"
-                ]]},
-                "mode" : "000644",
-                "owner" : "chef",
-                "group" : "root"
               }
             },
             "commands" : {
@@ -198,13 +220,30 @@
           "Fn::Base64" : { "Fn::Join" : ["", [
                 "#!/bin/bash -v\n",
                 "yum update -y aws-cfn-bootstrap\n",
-                "yum install -y python-boto\n",
+                "yum install -y python-boto pam_ssh_agent_auth\n",
+                "# Helper function\n",
                 "pip install ansible\n",
+                "mkdir /root/.aws/\n",
+                "mkdir /home/ec2-user/.aws/\n",
+                "echo '[default]' >  /root/.aws/credentials\n",
+                "echo AWS_ACCESS_KEY_ID=",{ "Ref": "CfnKeys" }," >> /root/.aws/credentials\n",
+                "echo AWS_SECRET_ACCESS_KEY=", { "Fn::GetAtt": ["CfnKeys", "SecretAccessKey"] }, " >> /root/.aws/credentials\n",
                 "mkdir /etc/ansible\n",
-                "export AWS_ACCESS_KEY_ID=",{ "Ref": "CfnKeys" },"\n",
-                "export AWS_SECRET_ACCESS_KEY=", { "Fn::GetAtt": ["CfnKeys", "SecretAccessKey"] }, "\n",
-                "aws s3 cp s3://cf-tmpl-parascm5/ec2.ini /etc/ansible/ec2.ini\n", 
-                "aws s3 cp s3://cf-tmpl-parascm5/ec2.py /etc/ansible/ec2.py\n", 
+                "function error_exit\n",
+                "{\n",
+                "  /opt/aws/bin/cfn-signal -e 1 -r \"$1\" '", { "Ref" : "BastionHostHandle" }, "'\n",
+                "  exit 1\n",
+                "}\n",
+
+                "/opt/aws/bin/cfn-init -s ", { "Ref" : "AWS::StackName" }, " -r BastionHost ",
+                "    --access-key ",  { "Ref" : "CfnKeys" },
+                "    --secret-key ", {"Fn::GetAtt": ["CfnKeys", "SecretAccessKey"]},
+                "    --region ", { "Ref" : "AWS::Region" }, " || error_exit 'Failed to run cfn-init'\n ",
+                
+
+                "aws s3 cp s3://cf-tmpl-parascm5/ec2.ini /etc/ansible/ec2.ini --region eu-central-1 \n", 
+                "aws s3 cp s3://cf-tmpl-parascm5/ec2.py /etc/ansible/ec2.py --region eu-central-1 \n",
+                "chmod +x /etc/ansible/ec2.py\n", 
                 "# All is well so signal success\n",
                 "/opt/aws/bin/cfn-signal -e 0 -r \"Bastion host setup complete\" '", { "Ref" : "BastionHostHandle" }, "'\n"
               ]
