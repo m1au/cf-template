@@ -201,8 +201,10 @@
                 "yum install -y python-boto\n",
                 "pip install ansible\n",
                 "mkdir /etc/ansible\n",
-                "wget https://raw.githubusercontent.com/ansible/ansible/devel/contrib/inventory/ec2.py -O /etc/ansible/ec2.py\n",
-                "wget https://raw.githubusercontent.com/ansible/ansible/devel/contrib/inventory/ec2.ini -O /etc/ansible/ec2.ini\n",
+                "export AWS_ACCESS_KEY_ID=",{ "Ref": "CfnKeys" },"\n",
+                "export AWS_SECRET_ACCESS_KEY=", { "Fn::GetAtt": ["CfnKeys", "SecretAccessKey"] }, "\n",
+                "aws s3 cp s3://cf-tmpl-parascm5/ec2.ini /etc/ansible/ec2.ini\n", 
+                "aws s3 cp s3://cf-tmpl-parascm5/ec2.py /etc/ansible/ec2.py\n", 
                 "# All is well so signal success\n",
                 "/opt/aws/bin/cfn-signal -e 0 -r \"Bastion host setup complete\" '", { "Ref" : "BastionHostHandle" }, "'\n"
               ]
