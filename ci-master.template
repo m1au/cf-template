@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "CI master template",
+  "Description" : "Master - calling VPCStack and GitJen",
 
   "Parameters" : {
 
@@ -31,6 +31,18 @@
                "Parameters": {
                   "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
                   "PublicSubnetID" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnetID" ] },
+                  "Key" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] }
+               }
+           }
+       },
+	"Bastion": {
+           "Type": "AWS::CloudFormation::Stack",
+           "Properties": {
+               "TemplateURL": "https://s3.eu-central-1.amazonaws.com/cf-tmpl-parascm5/ci-admin.template",
+               "TimeoutInMinutes": "60",
+               "Parameters": {
+                  "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
+                  "AdminSubnetID" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.AdminSubnetID" ] },
                   "Key" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] }
                }
            }

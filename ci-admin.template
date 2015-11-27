@@ -4,7 +4,23 @@
   "Description" : "Add a Bastion host to an existing VPC. VPC must have an internet gateway already.",
 
   "Parameters" : {
-
+    "VpcId" : {
+      "Description" : "Vpc ID of your existing Virtual Private Cloud (VPC)",
+      "Type" : "String",
+      "Default": "vpc-"
+    },
+	"AdminSubnetID" : {
+      "Description" : "Admin subnet ID",
+      "Type" : "String",
+      "Default": "sg-"
+ 	}, 
+  "Key" : {
+      "Description" : "Key",
+      "Type" : "String",
+      "Default": "parascm5-key"
+  	}, 
+   
+   
     "BastionKeyName" : {
       "Description" : "Name of the EC2 KeyPair we will create internally to access instances in our VPC",
       "Type" : "String",
@@ -47,14 +63,7 @@
   },
 
   "Resources" : {
-	"VPCStack": {
-           "Type": "AWS::CloudFormation::Stack",
-           "Properties": {
-               "TemplateURL": "https://s3.eu-central-1.amazonaws.com/cf-tmpl-parascm5/ci-network.template",
-               "TimeoutInMinutes": "60"
-           }
-       },
-       
+      
     "CfnUser": {
       "Type": "AWS::IAM::User",
       "Properties": {
@@ -96,7 +105,7 @@
     "BastionSecurityGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
-        "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
+        "VpcId" : { "Ref" : "VpcId" },
         "GroupDescription" : "Enable SSH access via port 22",
         "SecurityGroupIngress" : [
           { "IpProtocol" : "tcp", "FromPort" : "22",  "ToPort" : "22",  "CidrIp" : { "Ref" : "SSHFrom" }}
@@ -165,9 +174,9 @@
           "AssociatePublicIpAddress" : "true",
           "DeviceIndex"              : "0",
           "DeleteOnTermination"      : "true",
-          "SubnetId"                 : { "Fn::GetAtt" : [ "VPCStack", "Outputs.AdminSubnetID" ] }
+          "SubnetId"                 : { "Ref" : "AdminSubnetID" }
         }],
-        "KeyName" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] },
+        "KeyName" : { "Ref" : "Key" },
         "Tags": [
            { "Key" : "Name", "Value" : { "Ref" : "ResourceName" } }
         ],

@@ -1,7 +1,7 @@
 {
   "AWSTemplateFormatVersion" : "2010-09-09",
 
-  "Description" : "Cloudformation template deploying full CI environment with Jenkins and Gitlab in VPC with 2 networks. Public for JM and GL and private for JS",
+  "Description" : "Network - VPC, subnets, NAT",
 
   "Parameters" : {
    "KeyPairName": {
