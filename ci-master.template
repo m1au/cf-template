@@ -1,0 +1,31 @@
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+
+  "Description" : "JSON string",
+
+  "Parameters" : {
+
+  },
+
+  "Mappings" : {
+
+  },
+
+  "Conditions" : {
+
+  },
+
+  "Resources" : {
+	"VPCStack": {
+           "Type": "AWS::CloudFormation::Stack",
+           "Properties": {
+               "TemplateURL": "https://s3.eu-central-1.amazonaws.com/cf-tmpl-parascm5/ci-network.template",
+               "TimeoutInMinutes": "60"
+           }
+       }
+  },
+
+  "Outputs" : {
+
+  }
+}
