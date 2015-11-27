@@ -5,7 +5,7 @@
 
   "Parameters" : {
     
-    "VpcId" : {
+	"VpcId" : {
       "Description" : "Vpc ID of your existing Virtual Private Cloud (VPC)",
       "Type" : "String",
       "Default": "vpc-"
@@ -15,7 +15,12 @@
       "Type" : "String",
       "Default": "sg-"
  	}, 
-  "Key" : {
+	"AdminSubnetIP" : {
+      "Description" : "Admin subnet IP",
+      "Type" : "String",
+      "Default": "127.0.0.1"
+ 	}, 
+	"Key" : {
       "Description" : "Key",
       "Type" : "String",
       "Default": "parascm5-key"
@@ -50,12 +55,10 @@
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "VpcId" : { "Ref" : "VpcId" },
-        "GroupDescription" : "Enable SSH access via port 22",
+        "GroupDescription" : "Generic Host Rules",
         "SecurityGroupIngress" : [
-          { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : { "Ref" : "WebAccess" }},
-          { "IpProtocol" : "tcp", "FromPort" : "8080",  "ToPort" : "8080",  "CidrIp" : { "Ref" : "WebAccess" }},
-          { "IpProtocol" : "tcp", "FromPort" : "443",  "ToPort" : "443",  "CidrIp" : { "Ref" : "WebAccess" }}
-        ]
+          { "IpProtocol" : "tcp", "FromPort" : "1",  "ToPort" : "65535",  "CidrIp" : { "Ref" : "AdminSubnetIP" }}
+       ]
       }
     },
     "JenkinsHost" : {
@@ -120,9 +123,9 @@
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "VpcId" : { "Ref" : "VpcId" },
-        "GroupDescription" : "Enable SSH access via port 22",
+        "GroupDescription" : "Enable Web access to Jenkins",
         "SecurityGroupIngress" : [
-          
+          { "IpProtocol" : "tcp", "FromPort" : "8080",  "ToPort" : "8080",  "CidrIp" : { "Ref" : "WebAccess" }}          
         ]
       }
     },
@@ -130,9 +133,9 @@
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "VpcId" : { "Ref" : "VpcId" },
-        "GroupDescription" : "Enable SSH access via port 22",
+        "GroupDescription" : "Enable Web access to Gitlab",
         "SecurityGroupIngress" : [
-          
+          { "IpProtocol" : "tcp", "FromPort" : "80",  "ToPort" : "80",  "CidrIp" : { "Ref" : "WebAccess" }}          
         ]
       }
     }
@@ -140,5 +143,9 @@
   },
 
   "Outputs" : {
+    "GitlabInstanceID" : {      "Value" : {"Ref": "GitlabHost"},      "Description" : "Gitlab Instance ID"     },
+    "GitlabPublicIp" : {      "Value" : {"Fn::GetAtt" : [ "GitlabHost", "PublicIp" ]},      "Description" : "Public IP address of gitlab"     },
+    "JenkinsInstanceID" : {      "Value" : {"Ref": "JenkinsHost"},      "Description" : "Jenkins Instance ID"     },
+    "JenkinsPublicIp" : {      "Value" : {"Fn::GetAtt" : [ "JenkinsHost", "PublicIp" ]},      "Description" : "Public IP address of Jenkins"     }
   }
 }

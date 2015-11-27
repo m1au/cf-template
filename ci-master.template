@@ -31,6 +31,7 @@
                "Parameters": {
                   "VpcId" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.VPCID" ] },
                   "PublicSubnetID" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.PublicSubnetID" ] },
+                  "AdminSubnetIP" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.AdminSubnetIP" ] },
                   "Key" : { "Fn::GetAtt" : [ "VPCStack", "Outputs.Key" ] }
                }
            }
