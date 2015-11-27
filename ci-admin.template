@@ -79,7 +79,11 @@
                   "ec2:CreateKeyPair",
                   "ec2:DescribeKeyPairs",
                   "ec2:DescribeRegions",
-                  "ec2:ImportKeyPair"
+                  "ec2:ImportKeyPair",
+                  "ec2:Describe*",
+				  "ec2:GetConsoleOutput",
+        		  "ecs:Describe*",
+        	      "ecs:List*"
                 ],
                 "Resource" : "*"
               },
@@ -148,6 +152,16 @@
                 "owner": "ec2-user",
                 "group": "ec2-user"
               },
+              "/home/ec2-user/.aws/credentials": {
+                "content": {
+                  "Fn::Join": ["", [ "[default]\n",
+                    "aws_access_key_id = ", { "Ref": "CfnKeys" }, "\n",
+                    "aws_secret_access_key = ", { "Fn::GetAtt": ["CfnKeys", "SecretAccessKey"] }, "\n"]]
+                },
+                "mode": "000600",
+                "owner": "ec2-user",
+                "group": "ec2-user"
+              },
               "/etc/chef/client-attribs.json" : {
                 "content" : { "Fn::Join" : ["", [
                   "{\"run_list\": [ \"role[<put role here>]\" ]}"
@@ -185,7 +199,10 @@
                 "#!/bin/bash -v\n",
                 "yum update -y aws-cfn-bootstrap\n",
                 "yum install -y python-boto\n",
-                "pip install ansible",
+                "pip install ansible\n",
+                "mkdir /etc/ansible\n",
+                "wget https://raw.githubusercontent.com/ansible/ansible/devel/contrib/inventory/ec2.py -O /etc/ansible/ec2.py\n",
+                "wget https://raw.githubusercontent.com/ansible/ansible/devel/contrib/inventory/ec2.ini -O /etc/ansible/ec2.ini\n",
                 "# All is well so signal success\n",
                 "/opt/aws/bin/cfn-signal -e 0 -r \"Bastion host setup complete\" '", { "Ref" : "BastionHostHandle" }, "'\n"
               ]
